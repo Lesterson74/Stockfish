@@ -788,21 +788,43 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                return more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+                sf = more_than_one(pos.pieces(PAWN)) ? 26 : 9;
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return ScaleFactor(46);
+            // I added the conditions if "pos.count..." etc just to avoid the next statement
+            // to involve positions like these exemples
+            // R + Bishop against N + oppositeBishop. Or Bishop+Knigh against oppBishop
+            // Or 2Bishops against N+B (this would have an oppBishop from the PairBishops
+            // I think it should be better not count the Queens, and even include
+            // the obligation to be zero queens for both sides/colours. But for now just
+            // searching for a first test and tunnings...
+            else if (   pos.count<KNIGHT>(WHITE) == pos.count<KNIGHT>(BLACK)
+                     && pos.count<BISHOP>(WHITE) == pos.count<BISHOP>(BLACK)
+                     && pos.count<ROOK>(WHITE) == pos.count<ROOK>(BLACK)
+                     && pos.count<QUEEN>(WHITE) == pos.count<QUEEN>(BLACK))
+              sf = 20 - 10 * !(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
+              // The original's S.Nicolet's patch is just: "else" and next statement could be
+              // interesting tunning...
+              // sf = 48 - 10 * !(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+          sf = 37 + 7 * pos.count<PAWN>(strongSide);
+          // This change it is from original's S.Nicolet. Interesting tunning
+          // trying 27 or 17 or 7 instead of "37". I think the most important to try
+          // next, could be putting this only for opposite bishops ending and not for
+          // any other endings. So I think this should go more above... in oppBishops
+          // endings with no more pieces.
+          // Im guessing here is for any kind of ending, and I think it is wosrt. Should
+          // be interesting to delete it, and test with this. If it is ok. Then put
+          // more above as I said, and test it with tunnings, etc.
     }
 
-    return sf;
+    return ScaleFactor(sf);
   }
 
 
