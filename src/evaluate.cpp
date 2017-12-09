@@ -246,6 +246,10 @@ namespace {
   const Value LazyThreshold  = Value(1500);
   const Value SpaceThreshold = Value(12222);
 
+  int A = 45, B = 22, C = 45;
+  TUNE(SetRange(1, 68), A);
+  TUNE(SetRange(0, 40), B);
+  TUNE(SetRange(15, 68), C);
 
   // initialize() computes king and pawn attacks, and the king ring bitboard
   // for a given color. This is done at the beginning of the evaluation.
@@ -802,11 +806,11 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(BLACK) == BishopValueMg
                 && pos.non_pawn_material(WHITE) == BishopValueMg)
-                return ScaleFactor(popcount(pe->passed_pawns(strongSide)) * 22 + 3);
+                return more_than_one(pe->passed_pawns(strongSide)) ? ScaleFactor(A) : ScaleFactor(B);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return ScaleFactor(46);
+            return ScaleFactor(C);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
