@@ -802,11 +802,11 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(BLACK) == BishopValueMg
                 && pos.non_pawn_material(WHITE) == BishopValueMg)
-                return ScaleFactor(popcount(pe->passed_pawns(strongSide)) * 22 + 3);
+                return more_than_one(pe->passed_pawns(strongSide)) ? ScaleFactor(45) : ScaleFactor(19);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return ScaleFactor(46);
+            return ScaleFactor(44);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
